@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Generators - Names & Passwords</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .generator-card {
+            background: rgba(40, 40, 40, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #555555;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: border-color 0.3s ease;
+            background: #222222;
+            color: #ffffff;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #ff0000;
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff0000;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4);
+            background: #cc0000;
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+            color: #4a5568;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .result.has-content {
+            background: #edf2f7;
+            border-color: #667eea;
+            color: #2d3748;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .result.has-content:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn:hover {
+            background: #5a67d8;
+        }
+
+        .strength-meter {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .strength-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .strength-text {
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .generator-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .card-title {
+                font-size: 1.5rem;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .generator-card {
+                padding: 15px;
+            }
+            
+            .result {
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎲 Random Generators</h1>
+            <p>Generate random names and secure passwords instantly</p>
+        </header>
+
+        <!-- Name Generator -->
+        <div class="generator-card">
+            <h2 class="card-title">👤 Name Generator</h2>
+            
+            <div class="form-group">
+                <label for="nameType">Name Type:</label>
+                <select id="nameType">
+                    <option value="full">Full Name</option>
+                    <option value="first">First Name Only</option>
+                    <option value="last">Last Name Only</option>
+                    <option value="fantasy">Fantasy Name</option>
+                    <option value="business">Business Name</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="nameGender">Gender:</label>
+                <select id="nameGender">
+                    <option value="mixed">Mixed</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <button class="generate-btn" onclick="generateName()">
+                Generate Random Name
+            </button>
+
+            <div class="result" id="nameResult">
+                <span>Click generate to create a random name</span>
+            </div>
+        </div>
+
+        <!-- Password Generator -->
+        <div class="generator-card">
+            <h2 class="card-title">🔐 Password Generator</h2>
+            
+            <div class="form-group">
+                <label for="passwordLength">Password Length:</label>
+                <input type="number" id="passwordLength" min="4" max="100" value="12">
+            </div>
+
+            <div class="form-group">
+                <label>Include Characters:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="includeUppercase" checked>
+                        <label for="includeUppercase">Uppercase (A-Z)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="includeLowercase" checked>
+                        <label for="includeLowercase">Lowercase (a-z)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="includeNumbers" checked>
+                        <label for="includeNumbers">Numbers (0-9)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="includeSymbols">
+                        <label for="includeSymbols">Symbols (!@#$%)</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="generate-btn" onclick="generatePassword()">
+                Generate Secure Password
+            </button>
+
+            <div class="result" id="passwordResult">
+                <span>Click generate to create a secure password</span>
+            </div>
+
+            <div class="strength-meter" id="strengthMeter">
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <div class="strength-text" id="strengthText"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Name Generator Data
+        const nameData = {
+            firstNames: {
+                male: ['Alexander', 'Benjamin', 'Christopher', 'Daniel', 'Ethan', 'Felix', 'Gabriel', 'Henry', 'Isaac', 'Jacob', 'Kevin', 'Lucas', 'Matthew', 'Nathan', 'Oliver', 'Patrick', 'Quinn', 'Robert', 'Samuel', 'Thomas', 'Victor', 'William', 'Xavier', 'Zachary'],
+                female: ['Amelia', 'Bella', 'Charlotte', 'Diana', 'Emma', 'Fiona', 'Grace', 'Hannah', 'Isabella', 'Julia', 'Katherine', 'Luna', 'Mia', 'Natalie', 'Olivia', 'Penelope', 'Quinn', 'Rose', 'Sophia', 'Taylor', 'Victoria', 'Willow', 'Zoe']
+            },
+            lastNames: ['Anderson', 'Brown', 'Davis', 'Garcia', 'Johnson', 'Jones', 'Martinez', 'Miller', 'Moore', 'Taylor', 'Thomas', 'Wilson', 'Adams', 'Baker', 'Clark', 'Evans', 'Hall', 'Harris', 'Jackson', 'King', 'Lewis', 'Nelson', 'Parker', 'Roberts', 'Robinson', 'Rodriguez', 'Smith', 'Thompson', 'Walker', 'White', 'Williams', 'Wright', 'Young'],
+            fantasy: ['Aelindra', 'Thalorin', 'Zypher', 'Kaelynn', 'Drakemor', 'Elvira', 'Gandor', 'Lyralei', 'Morgrim', 'Nyxaria', 'Orion', 'Phoenia', 'Quillen', 'Ravenna', 'Silvanus', 'Thalassa', 'Valdris', 'Wynara', 'Xendor', 'Ysara', 'Zephyra'],
+            business: ['TechFlow', 'InnovatePro', 'NextGen Solutions', 'BlueWave', 'Quantum Dynamics', 'Stellar Systems', 'Apex Innovations', 'Fusion Works', 'Digital Horizon', 'Prime Ventures', 'Swift Technologies', 'Vertex Group', 'Nexus Labs', 'Atlas Corp', 'Pinnacle Enterprises']
+        };
+
+        function generateName() {
+            const nameType = document.getElementById('nameType').value;
+            const gender = document.getElementById('nameGender').value;
+            let result = '';
+
+            switch(nameType) {
+                case 'full':
+                    const firstNameList = gender === 'mixed' ? 
+                        [...nameData.firstNames.male, ...nameData.firstNames.female] :
+                        nameData.firstNames[gender];
+                    const firstName = firstNameList[Math.floor(Math.random() * firstNameList.length)];
+                    const lastName = nameData.lastNames[Math.floor(Math.random() * nameData.lastNames.length)];
+                    result = `${firstName} ${lastName}`;
+                    break;
+                case 'first':
+                    const firstList = gender === 'mixed' ? 
+                        [...nameData.firstNames.male, ...nameData.firstNames.female] :
+                        nameData.firstNames[gender];
+                    result = firstList[Math.floor(Math.random() * firstList.length)];
+                    break;
+                case 'last':
+                    result = nameData.lastNames[Math.floor(Math.random() * nameData.lastNames.length)];
+                    break;
+                case 'fantasy':
+                    result = nameData.fantasy[Math.floor(Math.random() * nameData.fantasy.length)];
+                    break;
+                case 'business':
+                    result = nameData.business[Math.floor(Math.random() * nameData.business.length)];
+                    break;
+            }
+
+            displayResult('nameResult', result);
+        }
+
+        function generatePassword() {
+            const length = parseInt(document.getElementById('passwordLength').value);
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeLowercase = document.getElementById('includeLowercase').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+
+            let charset = '';
+            if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (includeNumbers) charset += '0123456789';
+            if (includeSymbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            if (charset === '') {
+                alert('Please select at least one character type!');
+                return;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+
+            displayResult('passwordResult', password);
+            updatePasswordStrength(password);
+        }
+
+        function displayResult(elementId, text) {
+            const resultElement = document.getElementById(elementId);
+            resultElement.innerHTML = `
+                <span>${text}</span>
+                <button class="copy-btn" onclick="copyToClipboard('${text}')">Copy</button>
+            `;
+            resultElement.classList.add('has-content');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1000);
+            });
+        }
+
+        function updatePasswordStrength(password) {
+            const strengthMeter = document.getElementById('strengthMeter');
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+
+            let score = 0;
+            let feedback = '';
+
+            // Length scoring
+            if (password.length >= 8) score += 1;
+            if (password.length >= 12) score += 1;
+            if (password.length >= 16) score += 1;
+
+            // Character type scoring
+            if (/[a-z]/.test(password)) score += 1;
+            if (/[A-Z]/.test(password)) score += 1;
+            if (/[0-9]/.test(password)) score += 1;
+            if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+
+            // Determine strength level
+            if (score <= 2) {
+                strengthFill.style.width = '25%';
+                strengthFill.style.backgroundColor = '#e53e3e';
+                feedback = 'Weak';
+            } else if (score <= 4) {
+                strengthFill.style.width = '50%';
+                strengthFill.style.backgroundColor = '#dd6b20';
+                feedback = 'Fair';
+            } else if (score <= 6) {
+                strengthFill.style.width = '75%';
+                strengthFill.style.backgroundColor = '#38a169';
+                feedback = 'Good';
+            } else {
+                strengthFill.style.width = '100%';
+                strengthFill.style.backgroundColor = '#25855a';
+                feedback = 'Strong';
+            }
+
+            strengthText.textContent = `Password Strength: ${feedback}`;
+            strengthMeter.style.display = 'block';
+        }
+
+        // Generate initial examples
+        window.addEventListener('load', () => {
+            generateName();
+            generatePassword();
+        });
+    </script>
+</body>
+</html>
